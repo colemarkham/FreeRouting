@@ -48,7 +48,7 @@ public class BoardFrame extends javax.swing.JFrame
     public static BoardFrame get_embedded_instance(String p_design_file_path_name,
             BoardObservers p_observers, IdNoGenerator p_id_no_generator, java.util.Locale p_locale)
     {
-        final gui.DesignFile design_file = gui.DesignFile.get_instance(p_design_file_path_name, false);
+        final gui.DesignFile design_file = gui.DesignFile.get_instance(p_design_file_path_name);
         if (design_file == null)
         {
             WindowMessage.show("designfile not found");
@@ -103,7 +103,6 @@ public class BoardFrame extends javax.swing.JFrame
             datastructures.IdNoGenerator p_item_id_no_generator, java.util.Locale p_locale, boolean p_confirm_cancel)
     {
         this.design_file = p_design;
-        this.is_web_start = (p_option == Option.WEBSTART);
         this.test_level = p_test_level;
         
         this.confirm_cancel = p_confirm_cancel;
@@ -146,7 +145,7 @@ public class BoardFrame extends javax.swing.JFrame
         this.scroll_pane.setVerifyInputWhenFocusTarget(false);
         this.add(scroll_pane, java.awt.BorderLayout.CENTER);
         
-        this.board_panel = new BoardPanel(screen_messages, this, this.is_web_start, p_locale);
+        this.board_panel = new BoardPanel(screen_messages, this, p_locale);
         this.scroll_pane.setViewportView(board_panel);
         
         this.setTitle(resources.getString("title"));
@@ -260,23 +259,15 @@ public class BoardFrame extends javax.swing.JFrame
             // Read the default gui settings, if gui default file exists.
             java.io.InputStream input_stream = null;
             boolean defaults_file_found;
-            if (this.is_web_start)
+            File defaults_file = new File(this.design_file.get_parent(), GUI_DEFAULTS_FILE_NAME);
+            defaults_file_found = true;
+            try
             {
-                input_stream = WebStart.get_file_input_stream(BoardFrame.GUI_DEFAULTS_FILE_NAME);
-                defaults_file_found = (input_stream != null);
+               input_stream = new java.io.FileInputStream(defaults_file);
             }
-            else
+            catch (java.io.FileNotFoundException e)
             {
-                File defaults_file = new File(this.design_file.get_parent(), GUI_DEFAULTS_FILE_NAME);
-                defaults_file_found = true;
-                try
-                {
-                    input_stream = new java.io.FileInputStream(defaults_file);
-                }
-                catch (java.io.FileNotFoundException e)
-                {
-                    defaults_file_found = false;
-                }
+               defaults_file_found = false;
             }
             if (defaults_file_found)
             {
@@ -377,11 +368,8 @@ public class BoardFrame extends javax.swing.JFrame
                 curr_component = p_component;
             }
             String help_id = "html_files." + p_help_id;
-            javax.help.CSH.setHelpIDString(curr_component, help_id);
-            if (!this.is_web_start)
-            {
-                help_broker.enableHelpKey(curr_component, help_id, help_set);
-            }
+//            javax.help.CSH.setHelpIDString(curr_component, help_id);
+//            help_broker.enableHelpKey(curr_component, help_id, help_set);
         }
     }
     
@@ -684,12 +672,9 @@ public class BoardFrame extends javax.swing.JFrame
     
     private final TestLevel test_level;
     
-    /** true, if the frame is created by an application running under Java Web Start */
-    final boolean is_web_start;
-    
     private final boolean help_system_used;
-    static javax.help.HelpSet help_set = null;
-    static javax.help.HelpBroker help_broker = null;
+//    static javax.help.HelpSet help_set = null;
+//    static javax.help.HelpBroker help_broker = null;
     
     private final boolean confirm_cancel;
     
